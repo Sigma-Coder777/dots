@@ -1,0 +1,10 @@
+#!/bin/bash
+walldir=$HOME/Pictures/
+
+if [ -z "$1" ]; then
+    test -d $walldir || walldir=$HOME/.local/share/backgrounds/ 
+    wall="$(find "$walldir" -type f -name "*.jpg" -o -name "*.png" | shuf -n1 )" 
+else
+    wall="$1"
+fi
+xwallpaper --zoom $wall &

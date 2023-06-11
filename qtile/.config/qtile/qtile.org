@@ -1,0 +1,302 @@
+#+TITLE: Dotfiles
+#+PROPERTY: header-args :tangle config.py
+#+auto_tangle: t
+Unmaintained
+* TABLE OF CONTENT :toc_2_gh:
+- [[#about-the-config][About The Config]]
+- [[#dependencies][Dependencies]]
+  - [[#required][Required]]
+  - [[#optional][Optional]]
+- [[#setup][Setup]]
+  - [[#installing-stow][Installing Stow]]
+  - [[#placing-files-in-correct-location][Placing files in correct location]]
+- [[#my-qtile-config][My Qtile Config]]
+  - [[#imports][Imports]]
+  - [[#application--group-names][Application & Group Names]]
+  - [[#keybindings][KeyBindings]]
+  - [[#layouts][Layouts]]
+  - [[#multiple-screens][Multiple Screens]]
+  - [[#mouse--floating-windows][Mouse & Floating Windows]]
+  - [[#some-window-variables][Some Window variables]]
+  - [[#autostart-configurations][Autostart Configurations]]
+- [[#keybindings-1][Keybindings]]
+
+* About The Config
+I am using Qtile with Polybar.
+The FIle Structure is designed in such a way you can get the whole setup with one single command
+I dont use it much
+* Dependencies
+** Required
++ Qtile
++ Polybar
++ Nerd-fonts-complete
++ Picom
+** Optional
++ Alacritty (My Current Terminal Emulator)
++ Fish (Yes I am Vegan Fish Lover.)
++ Redshift (Com'on man give your eyes a rest)
++ Nitrogen (Wallpaper Utility)
++ Flameshot (You want to take screenshot right ?)
++ Lxsession (A session manager You need a one)
+* Setup
+First install required packages (Using your package manager.)
+
+** Installing Stow
+Stow is the tool to create symlinks
+*** Arch Linux
+#+begin_example
+sudo pacman -S stow
+#+end_example
+
+*** Ubuntu/Debian Based
+#+begin_example
+sudo apt install stow
+#+end_example
+*** Fedora/RHEL Based
+#+begin_example
+sudo dnf install stow
+#+end_example
+** Placing files in correct location
+#+begin_example
+git clone --depth 1 https://github.com/Sigma-Coder777/dots || exit 1
+mv dots ~/.dots
+cd ~/.dots
+stow */ --adopt
+#+end_example
+
+Everything shauld be done now
+Just login into Qtile.
+* My Qtile Config
+** Imports
+No Explanation Cry about it.
+#+begin_src python
+
+from libqtile import bar, layout, widget, hook
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
+from libqtile.lazy import lazy
+import os, subprocess
+
+#+end_src
+** Application & Group Names
+Here I initialise some variable like my default browser, terminal and Group/Workspace Names
+#+begin_src python
+
+
+mod = "mod4"
+
+terminal ="alacritty -e fish" # fish & alacritty <3
+browser = "firefox" # Firefox with cascade custom userChrome.css <3
+second_browser = "brave" # Yet another great browser
+file_manager = "pcmanfm"
+screenshot_tool = "flameshot gui"
+
+#This script will execute every single time either you reload qtile config or login
+#Don"t add your apps like discord here. Thank me later :)
+start_always ='~/.config/qtile/autostart.sh'
+#Add the path of the script you want to run only when you login
+#Un-Comment the hook at the last of this file
+start_once = "~/.config/qtile/start_once.sh"
+group_names = '   ﭮ   祥 '.split()
+#+end_src
+** KeyBindings
+Do I realy need to explain what are Keybindings.
+Don't worry boy comments are available after each line :D
+Customize these according to your needs.
+#+begin_src python
+
+
+keys = [
+
+    # Switch between windows
+    Key([mod], "h",
+        lazy.layout.left(),
+        desc="Move focus to left"),
+    Key([mod], "l",
+        lazy.layout.right(),
+        desc="Move focus to right"),
+    Key([mod], "j",
+        lazy.layout.down(),
+        desc="Move focus down"),
+    Key([mod], "k",
+        lazy.layout.up(),
+        desc="Move focus up"),
+
+    # Move windows between left/right columns or move up/down in current stack.
+    # Moving out of range in Columns layout will create new column.
+    Key([mod, "control"], "h",
+        lazy.layout.shuffle_left(),
+        desc="Move window to the left"),
+    Key([mod, "control"], "l",
+        lazy.layout.shuffle_right(),
+        desc="Move window to the right"),
+    Key([mod, "control"], "j",
+        lazy.layout.shuffle_down(),
+        desc="Move window down"),
+    Key([mod, "control"], "k",
+        lazy.layout.shuffle_up(),
+        desc="Move window up"),
+
+    Key([mod,"shift"],"h",
+        lazy.layout.shrink(),
+        desc="Shrinks the window in monadtall"),
+    Key([mod,"shift"],"l",
+        lazy.layout.grow(),
+        desc="grows the window in monadtall"),
+    Key([mod],"f",
+        lazy.window.toggle_fullscreen(),
+        desc="Toggle Fullscreen"),
+
+
+
+   #Application launching Keybinds
+    Key([mod], "Return",
+        lazy.spawn(terminal),
+        desc="Launch terminal"),
+    Key([mod], "b",
+        lazy.spawn(browser),
+        desc=f"Launch {browser}"),
+    Key([mod], "e",
+        lazy.spawn(file_manager),
+        desc=f"Launch {file_manager}"),
+    Key([mod, "shift"], "b",
+        lazy.spawn(second_browser),
+        desc=f"Launch {second_browser}"),
+    Key([mod,"shift"], "d",
+        lazy.spawn("rofi -show drun"),
+        desc="Launch Rofi"),
+    Key([mod], "p",
+        lazy.spawn("pavucontrol"),
+        desc="Launch Pavucontrol"),
+    Key([mod], "s",
+        lazy.spawn(screenshot_tool),
+        desc="Launches the screenshot utility"),
+
+    # Toggle between different layouts as defined below
+    Key([mod], "space",
+        lazy.next_layout(),
+        desc="Toggle between layouts"),
+    Key([mod, "shift"], "c",
+        lazy.window.kill(),
+        desc="Kill focused window"),
+    Key([mod, "control"], "r",
+        lazy.reload_config(),
+        desc="Reload the config"),
+    Key([mod, "control"], "q",
+        lazy.shutdown(), desc="Shutdown Qtile"),
+]
+
+#This Function is responsible for changing names of the groups
+#By Default it assigns monadtall layout to all of the groups/workspaces
+groups = [Group(name, layout='monadtall') for name in group_names]
+for i, name in enumerate(group_names):
+    indx = str(i + 1)
+    keys += [
+        Key([mod], indx, lazy.group[name].toscreen()),
+        Key([mod, 'shift'], indx, lazy.window.togroup(name))
+    ]
+
+#+end_src
+** Layouts
+According to me these three will fullfill most of the homosapiens need.
+#+begin_src python
+layouts = [
+    layout.MonadTall(border_focus="#ADD8E6",border_width=2,margin=7),
+    layout.Max(),
+    layout.Floating(border_focus="#ADD8E6"),
+    layout.Tile(border_focus="#ADD8E6",border_width=2,margin=7),
+    ]
+floating_layout = layout.Floating(
+    float_rules=[
+        ,*layout.Floating.default_float_rules,
+        Match(wm_class="confirmreset"),  # gitk
+        Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="maketag"),  # gitk
+        Match(wm_class="ssh-askpass"),  # ssh-askpass
+        Match(title="branchdialog"),  # gitk
+        Match(title="pinentry"),  # GPG key password entry
+    ]
+)
+#+end_src
+** Multiple Screens
+Add your Screens If you are using any multimonitor setup.
+My Second Screen is broken :(
+#+begin_src python
+screens = [
+    Screen()
+]
+#+end_src
+
+** Mouse & Floating Windows
+Most probably you want to change these
+mod key + left click does everything in my case
+#+begin_src python
+
+mouse = [
+    Drag([mod], "Button1",
+         lazy.window.set_position_floating(),
+         start=lazy.window.get_position()),
+    Drag([mod,"shift"],
+         "Button1",
+         lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Click([mod], "Button1",
+          lazy.window.bring_to_front()),
+]
+
+#+end_src
+
+
+
+
+** Some Window variables
+Comments are present wherever needed.
+#+begin_src python
+
+
+# If things like steam games want to auto-minimize themselves when losing
+# focus, should we respect this or not?
+auto_minimize = True
+auto_fullscreen = True
+focus_on_window_activation = "smart"
+reconfigure_screens = True
+
+# When using the Wayland backend, this can be used to configure input devices.
+wl_input_rules = None
+
+
+dgroups_key_binder = None
+dgroups_app_rules = []
+follow_mouse_focus = True
+bring_front_click = False
+cursor_warp = False
+wmname = "LG3D"
+
+#+end_src
+
+** Autostart Configurations
+#+begin_src python
+
+@hook.subscribe.startup
+def autostart():
+    home = os.path.expanduser(start_always)
+    subprocess.Popen([home])
+
+@hook.subscribe.startup_once
+def autostart():
+    home = os.path.expanduser(start_once)
+    subprocess.Popen([home])
+
+
+#+end_src
+* Keybindings
+Super key is the default mod key.
+| Key                           | Action                            |
+| Mod+ Enter                    | Launches Terminal                 |
+| Mod + Shift + c               | Closes Current Window             |
+| Mod + Shift + d               | Launches ROfi                     |
+| Mod + b                       | Launches Browser                  |
+| Mod + Shift + b               | Launches Secondory Browser        |
+| Mod + Ctrl + q/r              | Quits/Restart Qtile               |
+| Mod + Shift + hjkl/arrow keys | Grows the window size             |
+| Mod + Ctrl + hjkl/arrow keys  | Moves the windows in layout       |
+| Mod + 1..8                    | Takes You to the nth workspace    |
+| Mod + SHift + 1..8            | Takes window to the nth workspace |

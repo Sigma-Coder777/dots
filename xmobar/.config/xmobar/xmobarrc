@@ -1,0 +1,32 @@
+Config { font = "JetBrains Mono Nerd Font 12"
+       , additionalFonts = ["Font Awesome Free Solid 15"
+                           ,"Font Awesome Brands"]
+       , borderColor = "black"
+       , border = TopB
+       , bgColor = "#1e1e2e"
+       , fgColor = "#f5e0dc"
+       , alpha = 255
+       , position = TopSize L 100 27
+       , textOffset = -1
+       , iconOffset = -1
+       , lowerOnStart = True
+       , pickBroadest = False
+       , persistent = False
+       , hideOnStart = False
+       , iconRoot     = ".xmonad/"
+       , allDesktops = True
+       , overrideRedirect = True
+       , commands = [ Run Cpu ["-L","3","-H"] 10
+                    , Run Memory ["-t","<fn=1>\xf2db</fn> <used> MiB"] 10
+                    , Run Com "echo" ["<fn=1>\x25d6</fn>"] "left-circle" 3600
+                    , Run Com "echo" ["<fn=1>\x25d7</fn>"] "right-circle" 3600
+                    , Run Date "<fn=1>\xf073</fn> %a %d %b" "date" 10
+                    , Run Date "<fn=1>\xf017</fn> %I %M %P" "time" 10
+                    , Run Volume "default" "Master" ["-t","<fn=1>\xf028</fn> <volume>%"] 10
+                    , Run Com ".config/xmobar/trayer-padding-icon.sh" [] "trayerpad" 20
+                    , Run UnsafeXMonadLog
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%UnsafeXMonadLog%}{ <fc=#cba6f7>[ %default:Master% ]</fc> <fc=#f9e2af>[ %memory% ]</fc> <fc=#f38ba8>[ %date% ]</fc> <fc=#74c7ec>[ %time% ]</fc>%trayerpad%"
+       }

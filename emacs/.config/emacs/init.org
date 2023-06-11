@@ -1,0 +1,481 @@
+#+TITLE: GNU Emacs Config
+#+PROPERTY: header-args :tangle init.el
+#+auto_tangle: t
+* Table of Content :toc_1_gh:
+- [[#intro][Intro]]
+- [[#gc][GC]]
+- [[#package-management][Package Management]]
+- [[#removing-emacs-weird--annoying-things][Removing emacs weird & annoying things]]
+- [[#auto-save][Auto Save]]
+- [[#evil][Evil]]
+- [[#icons][Icons]]
+- [[#editor-settings][Editor Settings]]
+- [[#fonts][Fonts]]
+- [[#keybinds][Keybinds]]
+- [[#modline--theme][Modline & Theme]]
+- [[#dashboard][DashBoard]]
+- [[#org-mode][Org Mode]]
+- [[#programming][Programming]]
+- [[#gc2][GC2]]
+
+* Intro
+Special Thanks to System Crafters and Distrotube for making me fell in love with emacs.
+If you are just starting with emacs I highly recommend watching content of these guys.
+
+I started my emacs journey with doom emacs so thats why you are gonna see some doomemacsish things here.
+* GC
+This for the garbage collection i think i should just shift to gcmh package Just to lazy to do that :D
+#+begin_src emacs-lisp
+(setq gc-cons-threshold (* 50 1000 1000))
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+#+end_src
+* Package Management
+** Straight.el
+Based Package Manager Bootstraping.
+#+begin_src emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+#+end_src
+** Use Package
+I wanna use that package emacs.
+#+begin_src emacs-lisp
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
+#+end_src
+
+* Removing emacs weird & annoying things
+** GUI Tweaks
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (setq inhibit-startup-message t)
+#+end_src
+** Making emacs scroll like normal 
+#+begin_src emacs-lisp
+    (setq redisplay-dont-pause t
+          scroll-margin 1
+          scroll-step 1
+          scroll-conservatively 10000
+          scroll-preserve-screen-position 1)
+#+end_src
+** No Littering and some minor tweaks
+#+begin_src emacs-lisp
+    (set-default-coding-systems 'utf-8)
+    ;; Disable Garbage
+    (setq make-backup-files nil)
+    (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/emacs/backups/" user-emacs-directory))))    
+
+  ; auto-save-mode doesn't create the path automatically!
+    (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+
+    (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+          auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+    (setq create-lockfiles nil)
+    (use-package no-littering)
+  (setq warning-minimum-level :emergency)
+(server-mode)
+
+#+end_src
+* Auto Save
+#+begin_src emacs-lisp
+(use-package super-save
+  :defer 
+  :diminish super-save-mode
+  :config
+  (super-save-mode +1)
+  (setq super-save-auto-save-when-idle t))
+#+end_src emacs-lisp
+* Evil
+** Evil & Evil Collection
+#+begin_src emacs-lisp
+  (use-package undo-tree
+    :after evil
+    :init
+    (setq undo-tree-auto-save-history nil)
+    (global-undo-tree-mode 1))
+  (use-package evil
+
+    :init      ;; tweak evil's configuration before loading it
+    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+    (setq evil-want-keybinding nil)
+    (setq evil-vsplit-window-right t)
+    (setq evil-split-window-below t)
+    (setq evil-undo-system 'undo-tree)
+    (evil-mode))
+  (use-package evil-collection
+
+    :after evil
+    :config
+    (setq evil-collection-mode-list '(dashboard dired ibuffer))
+
+    (define-key evil-normal-state-map (kbd "<tab>") 'evil-toggle-fold)
+    (define-key evil-normal-state-map (kbd "gc") 'evilnc-comment-or-uncomment-lines)
+    (evil-collection-init))
+#+end_src
+
+** Evil Comment
+#+begin_src emacs-lisp
+  (use-package evil-nerd-commenter
+    :after evil)
+#+end_src
+* Icons
+
+#+begin_src emacs-lisp
+  (use-package all-the-icons)
+#+end_src
+
+* Editor Settings
+#+begin_src emacs-lisp
+  (global-display-line-numbers-mode 1)
+  (setq display-line-numbers-type 'relative)
+  (global-visual-line-mode t)
+    (delete-selection-mode t)
+    ;; Disable line numbers for some modes
+  (dolist (mode '(  dashboard-mode-hook
+                    term-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
+* Fonts
+** Ligature
+[[https://andreyor.st/posts/2020-07-21-programming-ligatures-in-emacs/][Thanks to this blog]]
+#+begin_src emacs-lisp
+  (dolist (char/ligature-re
+           `((?-  . ,(rx (or (or "-->" "-<<" "->>" "-|" "-~" "-<" "->") (+ "-"))))
+             (?/  . ,(rx (or (or "/==" "/=" "/>" "/**" "/*") (+ "/"))))
+             (?*  . ,(rx (or (or "*>" "*/") (+ "*"))))
+             (?<  . ,(rx (or (or "<<=" "<<-" "<|||" "<==>" "<!--" "<=>" "<||" "<|>" "<-<"
+                                 "<==" "<=<" "<-|" "<~>" "<=|" "<~~" "<$>" "<+>" "</>"
+                                 "<*>" "<->" "<=" "<|" "<:" "<>"  "<$" "<-" "<~" "<+"
+                                 "</" "<*")
+                             (+ "<"))))
+             (?:  . ,(rx (or (or ":?>" "::=" ":>" ":<" ":?" ":=") (+ ":"))))
+             (?=  . ,(rx (or (or "=>>" "==>" "=/=" "=!=" "=>" "=:=") (+ "="))))
+             (?!  . ,(rx (or (or "!==" "!=") (+ "!"))))
+             (?>  . ,(rx (or (or ">>-" ">>=" ">=>" ">]" ">:" ">-" ">=") (+ ">"))))
+             (?&  . ,(rx (+ "&")))
+             (?|  . ,(rx (or (or "|->" "|||>" "||>" "|=>" "||-" "||=" "|-" "|>"
+                                 "|]" "|}" "|=")
+                             (+ "|"))))
+             (?.  . ,(rx (or (or ".?" ".=" ".-" "..<") (+ "."))))
+             (?+  . ,(rx (or "+>" (+ "+"))))
+             (?\[ . ,(rx (or "[<" "[|")))
+             (?\{ . ,(rx "{|"))
+             (?\? . ,(rx (or (or "?." "?=" "?:") (+ "?"))))
+             (?#  . ,(rx (or (or "#_(" "#[" "#{" "#=" "#!" "#:" "#_" "#?" "#(")
+                             (+ "#"))))
+             (?\; . ,(rx (+ ";")))
+             (?_  . ,(rx (or "_|_" "__")))
+             (?~  . ,(rx (or "~~>" "~~" "~>" "~-" "~@")))
+             (?$  . ,(rx "$>"))
+             (?^  . ,(rx "^="))
+             (?\] . ,(rx "]#"))))
+    (let ((char (car char/ligature-re))
+          (ligature-re (cdr char/ligature-re)))
+      (set-char-table-range composition-function-table char
+                            `([,ligature-re 0 font-shape-gstring]))))
+#+end_src
+
+
+** Settings
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil
+                      :font "JetBrainsMono Nerd Font"
+                      :height 90
+                      :weight 'medium)
+  (set-face-attribute 'variable-pitch nil
+                      :font "Ubuntu Nerd Font"
+                      :height 100
+                      :weight 'medium)
+  (set-face-attribute 'fixed-pitch nil
+                      :font "JetBrainsMono Nerd Font"
+                      :height 90
+                      :weight 'medium)
+  (set-face-attribute 'font-lock-comment-face nil
+                      :slant 'italic)
+  (set-face-attribute 'font-lock-keyword-face nil
+                      :slant 'italic)
+  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font"))
+
+  (setq global-prettify-symbols-mode t)
+#+end_src
+* Keybinds
+** Which Key
+Life Saver
+#+begin_src emacs-lisp
+  (use-package which-key
+    :defer 0
+    :diminish which-key-mode
+    :config
+
+    (setq which-key-side-window-location 'bottom
+          which-key-sort-order #'which-key-key-order-alpha
+          which-key-sort-uppercase-first nil
+          which-key-add-column-padding 1
+          which-key-max-display-columns nil
+          which-key-min-display-lines 6
+          which-key-side-window-slot -10
+          which-key-side-window-max-height 0.25
+          which-key-idle-delay 0.8
+          which-key-max-description-length 25
+          which-key-allow-imprecise-window-fit t
+          which-key-separator " → " ))
+  (which-key-mode)
+#+end_src
+** General Package
+Helps by making setting keybinding easier
+#+begin_src emacs-lisp
+  (use-package general
+  :after evil
+    :config
+    (general-evil-setup t))
+#+end_src
+** Ivy
+#+begin_src emacs-lisp
+     (use-package ivy
+            :diminish
+            :bind (("C-s" . swiper)
+                   :map ivy-minibuffer-map
+                   ("TAB" . ivy-alt-done)	
+                   ("C-l" . ivy-alt-done)
+                   ("C-j" . ivy-next-line)
+                   ("C-k" . ivy-previous-line)
+                   :map ivy-switch-buffer-map
+                   ("C-k" . ivy-previous-line)
+                   ("C-l" . ivy-done)
+                   ("C-d" . ivy-switch-buffer-kill)
+                   :map ivy-reverse-i-search-map
+                   ("C-k" . ivy-previous-line)
+                   ("C-d" . ivy-reverse-i-search-kill))
+            :config
+      (setq ivy-initial-inputs-alist nil)
+            (ivy-mode 1))
+
+        (use-package counsel
+          :bind (("M-x" . counsel-M-x)
+                 ("C-x b" . counsel-ibuffer)
+                 ("C-x C-f" . counsel-find-file)
+                 :map minibuffer-local-map
+                 ("C-r" . 'counsel-minibuffer-history)))
+        ;; it removes ^ in counsel
+
+       (use-package ivy-rich
+       :init (ivy-rich-mode 1))
+    (use-package smex
+    :defer
+    :init
+    (smex-initialize))
+#+end_src
+** KeyBind with ease
+#+begin_src emacs-lisp
+                    ;; zoom in/out like we do everywhere else.
+         (global-set-key (kbd "C-=") 'text-scale-increase)
+         (global-set-key (kbd "C--") 'text-scale-decrease)
+         (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
+         (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+
+     (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+        (nvmap :prefix "SPC"
+       "/"     '(swiper :which-key "Swiper")
+       "b"     '(:ignore t :wk "Buffer")
+       "b k"   '(kill-current-buffer :which-key "Kill current buffer")
+       "b b"   '(ibuffer :which-key "iBuffer")
+       "f"     '(:ignore t :wk "Files")
+       "f s"   '(save-buffer :which-key "Save Current Buffer")
+       "h"     '(:ignore t :wk "Settings")
+       "h t"   '(counsel-load-theme :which-key "Change Theme")
+   "h r r"     '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+       "w"     '(:ignore t :wk "Windows")
+       "w w"   '(evil-window-next :which-key "Switch to Next window")
+       "w q"   '(evil-quit :which-key "Close current window")
+   "w v"       '(evil-window-vsplit :which-key "Vertical split window")
+   "w n"       '(evil-window-new :which-key "New window")
+       "w s"   '(evil-window-split :which-key "Horizontal split window")
+  "w h"        '(evil-window-left :which-key "Window left")
+        "w j"  '(evil-window-down :which-key "Window down")
+        "w k"  '(evil-window-up :which-key "Window up")
+        "w l"  '(evil-window-right :which-key "Window right")
+       "."     '(find-file :which-key "Find File"))
+#+end_src
+
+* Modline & Theme
+#+begin_src emacs-lisp
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
+    (use-package doom-modeline)
+  (doom-modeline-mode 1)
+  (use-package doom-themes
+
+  :config
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'catppuccin t))
+;; For transparent Background
+(add-to-list 'default-frame-alist '(alpha . (85 . 85)))
+#+end_src
+* DashBoard
+#+begin_src emacs-lisp
+    (use-package dashboard
+      :config      ;; tweak dashboard config before loading it
+      (dashboard-setup-startup-hook)
+      :init
+      (setq dashboard-set-heading-icons t)
+      (setq dashboard-set-file-icons t)
+      (setq dashboard-set-footer nil)
+      (setq dashboard-banner-logo-title "I'm The Same As You. I Didn't Have Any Other Choice.")
+      (setq dashboard-startup-banner "~/.local/share/rice/pfp-medium-round.png")  ;; use custom image as banner
+      (setq dashboard-center-content nil)
+      (setq dashboard-items '((recents . 5)
+                              (bookmarks . 5)
+                              ))
+  )
+
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+#+end_src
+* Org Mode
+** Org
+Some Org tweaks
+#+begin_src emacs-lisp
+    (use-package org
+  :defer
+      :hook (org-mode . org-indent-mode)
+      :config
+      (setq org-ellipsis " ▾"
+            org-agenda-files  '("~/Documents/todo.org")
+            org-deadline-warning-days 3
+            org-hide-emphasis-markers t))
+
+#+end_src
+** Org Bullets
+Fancy Bullets
+#+begin_src emacs-lisp
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+** Org Toc
+#+begin_src emacs-lisp
+  (use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+
+
+
+#+end_src
+** Org Auto Tangle
+#+begin_src emacs-lisp
+  (use-package org-auto-tangle
+    :defer t
+    :config (setq org-auto-tangle-default t)
+    :hook (org-mode . org-auto-tangle-mode))
+  
+#+end_src
+* Programming 
+** Rainbow Delimiters
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+** LSP
+
+*** Lsp Mode
+#+begin_src emacs-lisp
+  (with-eval-after-load 'lsp-mode
+  (defun efs/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode)))
+
+  (use-package lsp-mode
+    :defer
+    :commands (lsp lsp-deferred)
+    :hook (lsp-mode . efs/lsp-mode-setup)
+    :config
+    (lsp-enable-which-key-integration t))
+    (setq lsp-keymap-prefix "C-c l") 
+#+end_src
+
+*** Lsp UI
+#+begin_src emacs-lisp
+  (use-package lsp-ui
+:after lsp-mode
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-position 'bottom))
+
+#+end_src
+*** Lsp Ivy
+#+begin_src emacs-lisp
+(use-package lsp-ivy
+  :after lsp-mode)
+#+end_src
+*** Lsp Treemacs
+#+begin_src emacs-lisp
+  (use-package lsp-treemacs
+  :after lsp-mode)
+#+end_src
+*** Company <3
+#+begin_src emacs-lisp
+  (use-package company
+    :defer
+    :hook (lsp-mode . company-mode)
+          (prog-mode . global-company-mode)
+    :bind (:map company-active-map
+           ("<tab>" . company-complete-selection))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0))
+
+  (use-package company-box
+    :after company
+    :hook (company-mode . company-box-mode))
+#+end_src
+
+
+** Language
+#+begin_src emacs-lisp
+  (use-package python-mode
+    :after lsp
+    :hook (python-mode . lsp-deferred))
+
+#+end_src
+
+** Snippets
+*** Yasnippets
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :after company
+    :init
+    (yas-global-mode))
+#+end_src
+*** Doom Snippets
+Power of Straight.el
+#+begin_src emacs-lisp
+(use-package doom-snippets
+  :after yasnippet
+  :straight (doom-snippets :type git :host github :repo "doomemacs/snippets" :files ("*.el" "*")))
+#+end_src
+* GC2
+#+begin_src emacs-lisp
+(setq gc-cons-threshold (* 2 1000 1000))
+#+end_src

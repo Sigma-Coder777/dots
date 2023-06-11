@@ -1,0 +1,70 @@
+#+title: Dotfiles
+#+OPTIONS: toc:2
+
+* TABLE OF CONTENT :toc_2_gh:
+- [[#about-the-config][About The Config]]
+- [[#screenshots][Screenshots]]
+- [[#dependencies-bloat][Dependencies (Bloat)]]
+  - [[#windows-manager--related-stuff][Windows Manager & Related Stuff]]
+  - [[#fonts][Fonts]]
+  - [[#shell][Shell]]
+  - [[#tui-apps][TUI Apps]]
+  - [[#gui-apps][GUI Apps]]
+- [[#color-schemes][Color Schemes]]
+- [[#installation][Installation]]
+- [[#somethings-you-should-be-aware-of][Somethings you should be aware of]]
+
+* About The Config
+This is a Repository of my dotfiles for the softwares I use and configured till now.
+There is a repo which contains some neat little scripts which help me to install any operating system (like Arch and Void) including Partitioning, Creating users, Grub etc which makes it super handy to reinstall and create virtual machines with exact same configurations.
+* Screenshots
+[[file:xmonad2.png]]
+[[file:xmonad-cat.jpg]]
+* Dependencies (Bloat)
+** Windows Manager & Related Stuff
+*** XMonad
+*** XMobar
+*** Lxsession
+*** xwallpaper
+*** Picom Jonaburg Fork
+*** Dunst
+*** Xdotool
+** Fonts
+*** JetBrainsMono Nerd Font
+*** Ubuntu Mono Nerd Font
+*** Agave Nerd Font
+*** Font Awesome 5
+** Shell
+*** Fish
+*** bat
+*** exa
+** TUI Apps
+*** Newsboat
+*** Ncmpcpp
+*** Mpd
+*** Ranger
+*** Neovim
+*** Btop
+** GUI Apps
+*** Emacs 
+*** librewolf or firefox
+*** Kitty
+* Color Schemes
+1. XMonad -> Catppuccin
+2. Qtile -> Tokyo-Night
+
+* Installation
+You can either copy the file you want manually or if you want everything then run following commands make sure the stow is installed
+#+begin_example
+git clone --depth 1 https://github.com/Sigma-Coder777/dots ~/.dots && cd ~/.dots
+stow */ --adopt
+#+end_example
+Alternativly in case you want just want my xmonad config then replace /some_directory/ with xmonad
+#+begin_example
+stow <some_directory> --adopt
+#+end_example
+
+
+* Somethings you should be aware of
++ I have'nt used qtile and stuff related to it from past 7 months So don't Feel Shocked if they dont work the way you expect them to work.
++ Polybar has hard coded position for monitor of size 1360x768.

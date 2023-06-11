@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+while read file
+do
+  case "$1" in
+    "w") $HOME/.local/bin/setbg "$file" ;;
+    "d") rm "$file";;
+esac
+done
