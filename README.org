@@ -5,11 +5,6 @@
 - [[#about-the-config][About The Config]]
 - [[#screenshots][Screenshots]]
 - [[#dependencies-bloat][Dependencies (Bloat)]]
-  - [[#windows-manager--related-stuff][Windows Manager & Related Stuff]]
-  - [[#fonts][Fonts]]
-  - [[#shell][Shell]]
-  - [[#tui-apps][TUI Apps]]
-  - [[#gui-apps][GUI Apps]]
 - [[#color-schemes][Color Schemes]]
 - [[#installation][Installation]]
 - [[#somethings-you-should-be-aware-of][Somethings you should be aware of]]
@@ -21,34 +16,34 @@ There is a repo which contains some neat little scripts which help me to install
 [[file:xmonad2.png]]
 [[file:xmonad-cat.jpg]]
 * Dependencies (Bloat)
-** Windows Manager & Related Stuff
-*** XMonad
-*** XMobar
-*** Lxsession
-*** xwallpaper
-*** Picom Jonaburg Fork
-*** Dunst
-*** Xdotool
-** Fonts
-*** JetBrainsMono Nerd Font
-*** Ubuntu Mono Nerd Font
-*** Agave Nerd Font
-*** Font Awesome 5
-** Shell
-*** Fish
-*** bat
-*** exa
-** TUI Apps
-*** Newsboat
-*** Ncmpcpp
-*** Mpd
-*** Ranger
-*** Neovim
-*** Btop
-** GUI Apps
-*** Emacs 
-*** librewolf or firefox
-*** Kitty
++ Windows Manager & Related Stuff
+  + XMonad
+  + XMobar
+  + Lxsession
+  + xwallpaper
+  + Picom Jonaburg Fork
+  + Dunst
+  + Xdotool
++ Fonts
+  + JetBrainsMono Nerd Font
+  + Ubuntu Mono Nerd Font
+  + Agave Nerd Font
+  + Font Awesome 5
++ Shell
+  + Fish
+  + bat
+  + exa
++ TUI Apps
+  + Newsboat
+  + Ncmpcpp
+  + Mpd
+  + Ranger
+  + Neovim
+  + Btop
++ GUI Apps
+  + Emacs 
+  + librewolf or firefox
+  + Kitty
 * Color Schemes
 1. XMonad -> Catppuccin
 2. Qtile -> Tokyo-Night
