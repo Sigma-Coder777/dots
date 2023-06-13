@@ -25,9 +25,10 @@
 (setq straight-use-package-by-default t)
 
 (menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(setq inhibit-startup-message t)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+(setq ring-bell-function 'ignore)
+  (setq inhibit-startup-message t)
 
 (setq redisplay-dont-pause t
       scroll-margin 1
@@ -68,8 +69,6 @@
 
   :after evil
   :config
-  (setq evil-collection-mode-list '(dashboard dired ibuffer))
-
   (define-key evil-normal-state-map (kbd "<tab>") 'evil-toggle-fold)
   (define-key evil-normal-state-map (kbd "gc") 'evilnc-comment-or-uncomment-lines)
   (evil-collection-init))
@@ -80,13 +79,15 @@
 (use-package all-the-icons)
 
 (global-display-line-numbers-mode 1)
-(setq display-line-numbers-type 'relative)
-(global-visual-line-mode t)
-  (delete-selection-mode t)
-  ;; Disable line numbers for some modes
-(dolist (mode '(  dashboard-mode-hook
-                  term-mode-hook))
-(add-hook mode (lambda () (display-line-numbers-mode 0))))
+  (setq display-line-numbers-type 'relative)
+  (global-visual-line-mode t)
+    (delete-selection-mode t)
+    ;; Disable line numbers for some modes
+
+(electric-pair-mode t)
+  (dolist (mode '(  dashboard-mode-hook
+                    term-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (dolist (char/ligature-re
          `((?-  . ,(rx (or (or "-->" "-<<" "->>" "-|" "-~" "-<" "->") (+ "-"))))
@@ -128,7 +129,7 @@
                     :height 90
                     :weight 'medium)
 (set-face-attribute 'variable-pitch nil
-                    :font "Ubuntu Nerd Font"
+                    :font "UbuntuMono Nerd Font"
                     :height 100
                     :weight 'medium)
 (set-face-attribute 'fixed-pitch nil
@@ -208,11 +209,28 @@
        (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-      (nvmap :prefix "SPC"
+
+(general-create-definer sigma/leader-key
+  :states '(normal insert visual emacs)
+  :keymaps 'override
+  :prefix "SPC" ;; set leader
+  :global-prefix "M-SPC") ;; access leader in insert mode
+
+
+(sigma/leader-key
      "/"     '(swiper :which-key "Swiper")
+     "SPC"   '(counsel-M-x :which-key "M-x")
      "b"     '(:ignore t :wk "Buffer")
      "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-     "b b"   '(ibuffer :which-key "iBuffer")
+     "b B"   '(ibuffer :which-key "iBuffer")
+     "b b"   '(counsel-ibuffer :which-key "Switch Buffer")
+ "b n"   '(next-buffer :which-key "Next Buffer")
+ "b p"   '(previous-buffer :which-key "Previous Buffer")
+ "m"     '(:ignore t :wk "Org")
+ "m t"   '(org-shiftright :which-key "Cycle Todo/List-Style")
+ "m d"   '(org-timestamp :which-key "Org Timestamp")
+ "m o"   '(org-open-at-point :which-key "Org Open")
+ "m /"   '(org-sparse-tree :which-key "Query Todos")
      "f"     '(:ignore t :wk "Files")
      "f s"   '(save-buffer :which-key "Save Current Buffer")
      "h"     '(:ignore t :wk "Settings")
@@ -260,13 +278,24 @@
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 
 (use-package org
-:defer
-    :hook (org-mode . org-indent-mode)
-    :config
-    (setq org-ellipsis " ▾"
-          org-agenda-files  '("~/Documents/todo.org")
-          org-deadline-warning-days 3
-          org-hide-emphasis-markers t))
+  :defer
+  :hook (org-mode . org-indent-mode)
+  :config
+  (setq org-ellipsis " ▾"
+        org-agenda-files  '("~/Documents/Habits.org")
+        org-deadline-warning-days 3
+        org-hide-emphasis-markers t)
+
+  (setq org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil
+        org-edit-src-content-indentation 0)
+  (electric-indent-mode -1)
+  (setq org-todo-keyword-faces
+        '(("TODO" . (:foreground "#d20f39" :weight bold)) 
+          ("DOING" . (:foreground "#a6e3a1" :weight bold))))
+  (setq org-todo-keywords
+        '((sequence "TODO" "DOING" "|" "DONE"))))
 
 (use-package org-bullets
   :after org
@@ -282,6 +311,9 @@
   :defer t
   :config (setq org-auto-tangle-default t)
   :hook (org-mode . org-auto-tangle-mode))
+
+(use-package magit
+  :commands magit-status)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -307,9 +339,6 @@
 
 (use-package lsp-ivy
   :after lsp-mode)
-
-(use-package lsp-treemacs
-:after lsp-mode)
 
 (use-package company
   :defer

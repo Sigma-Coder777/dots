@@ -1,28 +1,50 @@
 #+TITLE: GNU Emacs Config
 #+PROPERTY: header-args :tangle init.el
 #+auto_tangle: t
-* Table of Content :toc_1_gh:
+* Table of Content :toc_2_gh:
 - [[#intro][Intro]]
 - [[#gc][GC]]
 - [[#package-management][Package Management]]
+  - [[#straightel][Straight.el]]
+  - [[#use-package][Use Package]]
 - [[#removing-emacs-weird--annoying-things][Removing emacs weird & annoying things]]
+  - [[#gui-tweaks][GUI Tweaks]]
+  - [[#making-emacs-scroll-like-normal][Making emacs scroll like normal]]
+  - [[#no-littering-and-some-minor-tweaks][No Littering and some minor tweaks]]
 - [[#auto-save][Auto Save]]
 - [[#evil][Evil]]
+  - [[#evil--evil-collection][Evil & Evil Collection]]
+  - [[#evil-comment][Evil Comment]]
 - [[#icons][Icons]]
 - [[#editor-settings][Editor Settings]]
 - [[#fonts][Fonts]]
+  - [[#ligature][Ligature]]
+  - [[#settings][Settings]]
 - [[#keybinds][Keybinds]]
+  - [[#which-key][Which Key]]
+  - [[#general-package][General Package]]
+  - [[#ivy][Ivy]]
+  - [[#keybind-with-ease][KeyBind with ease]]
 - [[#modline--theme][Modline & Theme]]
 - [[#dashboard][DashBoard]]
 - [[#org-mode][Org Mode]]
+  - [[#org][Org]]
+  - [[#org-bullets][Org Bullets]]
+  - [[#org-toc][Org Toc]]
+  - [[#org-auto-tangle][Org Auto Tangle]]
 - [[#programming][Programming]]
+  - [[#magit][Magit]]
+  - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#lsp][LSP]]
+  - [[#language][Language]]
+  - [[#snippets][Snippets]]
 - [[#gc2][GC2]]
 
 * Intro
-Special Thanks to System Crafters and Distrotube for making me fell in love with emacs.
+These are the configs for my gnu emacs config.
+I started my emacs journey with *Doom Emacs* so thats why you are gonna see some doomemacs like things here.
+Thanks to System Crafters and Distrotube for making me fell in love with emacs.
 If you are just starting with emacs I highly recommend watching content of these guys.
-
-I started my emacs journey with doom emacs so thats why you are gonna see some doomemacsish things here.
 * GC
 This for the garbage collection i think i should just shift to gcmh package Just to lazy to do that :D
 #+begin_src emacs-lisp
@@ -67,6 +89,7 @@ I wanna use that package emacs.
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
+(setq ring-bell-function 'ignore)
   (setq inhibit-startup-message t)
 #+end_src
 ** Making emacs scroll like normal 
@@ -125,8 +148,6 @@ I wanna use that package emacs.
 
     :after evil
     :config
-    (setq evil-collection-mode-list '(dashboard dired ibuffer))
-
     (define-key evil-normal-state-map (kbd "<tab>") 'evil-toggle-fold)
     (define-key evil-normal-state-map (kbd "gc") 'evilnc-comment-or-uncomment-lines)
     (evil-collection-init))
@@ -150,6 +171,8 @@ I wanna use that package emacs.
   (global-visual-line-mode t)
     (delete-selection-mode t)
     ;; Disable line numbers for some modes
+
+(electric-pair-mode t)
   (dolist (mode '(  dashboard-mode-hook
                     term-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -203,7 +226,7 @@ I wanna use that package emacs.
                       :height 90
                       :weight 'medium)
   (set-face-attribute 'variable-pitch nil
-                      :font "Ubuntu Nerd Font"
+                      :font "Ubuntu Mono Nerd Font"
                       :height 100
                       :weight 'medium)
   (set-face-attribute 'fixed-pitch nil
@@ -294,11 +317,28 @@ Helps by making setting keybinding easier
          (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
      (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-        (nvmap :prefix "SPC"
+
+  (general-create-definer sigma/leader-key
+    :states '(normal insert visual emacs)
+    :keymaps 'override
+    :prefix "SPC" ;; set leader
+    :global-prefix "M-SPC") ;; access leader in insert mode
+
+
+  (sigma/leader-key
        "/"     '(swiper :which-key "Swiper")
+       "SPC"   '(counsel-M-x :which-key "M-x")
        "b"     '(:ignore t :wk "Buffer")
        "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-       "b b"   '(ibuffer :which-key "iBuffer")
+       "b B"   '(ibuffer :which-key "iBuffer")
+       "b b"   '(counsel-ibuffer :which-key "Switch Buffer")
+   "b n"   '(next-buffer :which-key "Next Buffer")
+   "b p"   '(previous-buffer :which-key "Previous Buffer")
+   "m"     '(:ignore t :wk "Org")
+   "m t"   '(org-shiftright :which-key "Cycle Todo/List-Style")
+   "m d"   '(org-timestamp :which-key "Org Timestamp")
+   "m o"   '(org-open-at-point :which-key "Org Open")
+   "m /"   '(org-sparse-tree :which-key "Query Todos")
        "f"     '(:ignore t :wk "Files")
        "f s"   '(save-buffer :which-key "Save Current Buffer")
        "h"     '(:ignore t :wk "Settings")
@@ -354,14 +394,25 @@ Helps by making setting keybinding easier
 ** Org
 Some Org tweaks
 #+begin_src emacs-lisp
-    (use-package org
-  :defer
-      :hook (org-mode . org-indent-mode)
-      :config
-      (setq org-ellipsis " ▾"
-            org-agenda-files  '("~/Documents/todo.org")
-            org-deadline-warning-days 3
-            org-hide-emphasis-markers t))
+  (use-package org
+    :defer
+    :hook (org-mode . org-indent-mode)
+    :config
+    (setq org-ellipsis " ▾"
+          org-agenda-files  '("~/Documents/Habits.org")
+          org-deadline-warning-days 3
+          org-hide-emphasis-markers t)
+
+    (setq org-src-fontify-natively t
+          org-src-tab-acts-natively t
+          org-confirm-babel-evaluate nil
+          org-edit-src-content-indentation 0)
+    (electric-indent-mode -1)
+    (setq org-todo-keyword-faces
+          '(("TODO" . (:foreground "#d20f39" :weight bold)) 
+            ("DOING" . (:foreground "#a6e3a1" :weight bold))))
+    (setq org-todo-keywords
+          '((sequence "TODO" "DOING" "|" "DONE"))))
 
 #+end_src
 ** Org Bullets
@@ -391,6 +442,11 @@ Fancy Bullets
   
 #+end_src
 * Programming 
+** Magit
+#+begin_src emacs-lisp
+  (use-package magit
+    :commands magit-status)
+#+end_src
 ** Rainbow Delimiters
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
@@ -427,11 +483,6 @@ Fancy Bullets
 *** Lsp Ivy
 #+begin_src emacs-lisp
 (use-package lsp-ivy
-  :after lsp-mode)
-#+end_src
-*** Lsp Treemacs
-#+begin_src emacs-lisp
-  (use-package lsp-treemacs
   :after lsp-mode)
 #+end_src
 *** Company <3
