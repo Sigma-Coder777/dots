@@ -25,10 +25,10 @@
 (setq straight-use-package-by-default t)
 
 (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 (setq ring-bell-function 'ignore)
-  (setq inhibit-startup-message t)
+(setq inhibit-startup-message t)
 
 (setq redisplay-dont-pause t
       scroll-margin 1
@@ -37,18 +37,18 @@
       scroll-preserve-screen-position 1)
 
 (set-default-coding-systems 'utf-8)
-    ;; Disable Garbage
-    (setq make-backup-files nil)
-    (setq backup-directory-alist `(("." . ,(expand-file-name "tmp/emacs/backups/" user-emacs-directory))))    
+;; Disable Garbage
+(setq make-backup-files nil)
+(setq backup-directory-alist `(("." . ,(expand-file-name "tmp/emacs/backups/" user-emacs-directory))))    
 
-  ; auto-save-mode doesn't create the path automatically!
-    (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+					; auto-save-mode doesn't create the path automatically!
+(make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 
-    (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-          auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
-    (setq create-lockfiles nil)
-    (use-package no-littering)
-  (setq warning-minimum-level :emergency)
+(setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+(setq create-lockfiles nil)
+(use-package no-littering)
+(setq warning-minimum-level :emergency)
 (server-mode)
 
 (use-package undo-tree
@@ -79,14 +79,14 @@
 (use-package all-the-icons)
 
 (global-display-line-numbers-mode 1)
-  (setq display-line-numbers-type 'relative)
-  (global-visual-line-mode t)
-    (delete-selection-mode t)
-    ;; Disable line numbers for some modes
+(setq display-line-numbers-type 'relative)
+(global-visual-line-mode t)
+(delete-selection-mode t)
+;; Disable line numbers for some modes
 
 (electric-pair-mode t)
-  (dolist (mode '(  dashboard-mode-hook
-                    term-mode-hook))
+(dolist (mode '(  dashboard-mode-hook
+                  term-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (dolist (char/ligature-re
@@ -129,7 +129,7 @@
                     :height 90
                     :weight 'medium)
 (set-face-attribute 'variable-pitch nil
-                    :font "UbuntuMono Nerd Font"
+                    :font "Ubuntu Mono Nerd Font"
                     :height 100
                     :weight 'medium)
 (set-face-attribute 'fixed-pitch nil
@@ -164,51 +164,51 @@
 (which-key-mode)
 
 (use-package general
-:after evil
+  :after evil
   :config
   (general-evil-setup t))
 
 (use-package ivy
-        :diminish
-        :bind (("C-s" . swiper)
-               :map ivy-minibuffer-map
-               ("TAB" . ivy-alt-done)	
-               ("C-l" . ivy-alt-done)
-               ("C-j" . ivy-next-line)
-               ("C-k" . ivy-previous-line)
-               :map ivy-switch-buffer-map
-               ("C-k" . ivy-previous-line)
-               ("C-l" . ivy-done)
-               ("C-d" . ivy-switch-buffer-kill)
-               :map ivy-reverse-i-search-map
-               ("C-k" . ivy-previous-line)
-               ("C-d" . ivy-reverse-i-search-kill))
-        :config
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)	
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
   (setq ivy-initial-inputs-alist nil)
-        (ivy-mode 1))
+  (ivy-mode 1))
 
-    (use-package counsel
-      :bind (("M-x" . counsel-M-x)
-             ("C-x b" . counsel-ibuffer)
-             ("C-x C-f" . counsel-find-file)
-             :map minibuffer-local-map
-             ("C-r" . 'counsel-minibuffer-history)))
-    ;; it removes ^ in counsel
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+         ("C-x b" . counsel-ibuffer)
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)))
+;; it removes ^ in counsel
 
-   (use-package ivy-rich
-   :init (ivy-rich-mode 1))
+(use-package ivy-rich
+  :init (ivy-rich-mode 1))
 (use-package smex
-:defer
-:init
-(smex-initialize))
+  :defer
+  :init
+  (smex-initialize))
 
 ;; zoom in/out like we do everywhere else.
-       (global-set-key (kbd "C-=") 'text-scale-increase)
-       (global-set-key (kbd "C--") 'text-scale-decrease)
-       (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
-       (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
+(global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
-   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (general-create-definer sigma/leader-key
   :states '(normal insert visual emacs)
@@ -218,40 +218,41 @@
 
 
 (sigma/leader-key
-     "/"     '(swiper :which-key "Swiper")
-     "SPC"   '(counsel-M-x :which-key "M-x")
-     "b"     '(:ignore t :wk "Buffer")
-     "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-     "b B"   '(ibuffer :which-key "iBuffer")
-     "b b"   '(counsel-ibuffer :which-key "Switch Buffer")
- "b n"   '(next-buffer :which-key "Next Buffer")
- "b p"   '(previous-buffer :which-key "Previous Buffer")
- "m"     '(:ignore t :wk "Org")
- "m t"   '(org-shiftright :which-key "Cycle Todo/List-Style")
- "m d"   '(org-timestamp :which-key "Org Timestamp")
- "m o"   '(org-open-at-point :which-key "Org Open")
- "m /"   '(org-sparse-tree :which-key "Query Todos")
-     "f"     '(:ignore t :wk "Files")
-     "f s"   '(save-buffer :which-key "Save Current Buffer")
-     "h"     '(:ignore t :wk "Settings")
-     "h t"   '(counsel-load-theme :which-key "Change Theme")
- "h r r"     '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
-     "w"     '(:ignore t :wk "Windows")
-     "w w"   '(evil-window-next :which-key "Switch to Next window")
-     "w q"   '(evil-quit :which-key "Close current window")
- "w v"       '(evil-window-vsplit :which-key "Vertical split window")
- "w n"       '(evil-window-new :which-key "New window")
-     "w s"   '(evil-window-split :which-key "Horizontal split window")
-"w h"        '(evil-window-left :which-key "Window left")
-      "w j"  '(evil-window-down :which-key "Window down")
-      "w k"  '(evil-window-up :which-key "Window up")
-      "w l"  '(evil-window-right :which-key "Window right")
-     "."     '(find-file :which-key "Find File"))
+  "/"     '(swiper :which-key "Swiper")
+  "SPC"   '(counsel-M-x :which-key "M-x")
+  "b"     '(:ignore t :wk "Buffer")
+  "b k"   '(kill-current-buffer :which-key "Kill current buffer")
+  "b B"   '(ibuffer :which-key "iBuffer")
+  "b b"   '(counsel-ibuffer :which-key "Switch Buffer")
+  "b n"   '(next-buffer :which-key "Next Buffer")
+  "b p"   '(previous-buffer :which-key "Previous Buffer")
+  "m"     '(:ignore t :wk "Org")
+  "m t"   '(org-shiftright :which-key "Cycle Todo/List-Style")
+  "m d"   '(org-timestamp :which-key "Org Timestamp")
+  "m o"   '(org-open-at-point :which-key "Org Open")
+  "m /"   '(org-sparse-tree :which-key "Query Todos")
+  "f"     '(:ignore t :wk "Files")
+  "f s"   '(save-buffer :which-key "Save Current Buffer")
+  "f r"   '(counsel-recentf :which-key "Save Current Buffer")
+  "h"     '(:ignore t :wk "Settings")
+  "h t"   '(counsel-load-theme :which-key "Change Theme")
+  "h r r"     '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+  "w"     '(:ignore t :wk "Windows")
+  "w w"   '(evil-window-next :which-key "Switch to Next window")
+  "w q"   '(evil-quit :which-key "Close current window")
+  "w v"       '(evil-window-vsplit :which-key "Vertical split window")
+  "w n"       '(evil-window-new :which-key "New window")
+  "w s"   '(evil-window-split :which-key "Horizontal split window")
+  "w h"        '(evil-window-left :which-key "Window left")
+  "w j"  '(evil-window-down :which-key "Window down")
+  "w k"  '(evil-window-up :which-key "Window up")
+  "w l"  '(evil-window-right :which-key "Window right")
+  "."     '(find-file :which-key "Find File"))
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
-    (use-package doom-modeline)
-  (doom-modeline-mode 1)
-  (use-package doom-themes
+(use-package doom-modeline)
+(doom-modeline-mode 1)
+(use-package doom-themes
 
   :config
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -261,21 +262,21 @@
 (add-to-list 'default-frame-alist '(alpha . (85 . 85)))
 
 (use-package dashboard
-    :config      ;; tweak dashboard config before loading it
-    (dashboard-setup-startup-hook)
-    :init
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-set-footer nil)
-    (setq dashboard-banner-logo-title "I'm The Same As You. I Didn't Have Any Other Choice.")
-    (setq dashboard-startup-banner "~/.local/share/rice/pfp-medium-round.png")  ;; use custom image as banner
-    (setq dashboard-center-content nil)
-    (setq dashboard-items '((recents . 5)
-                            (bookmarks . 5)
-                            ))
-)
+  :config      ;; tweak dashboard config before loading it
+  (dashboard-setup-startup-hook)
+  :init
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-set-footer nil)
+  (setq dashboard-banner-logo-title "I'm The Same As You. I Didn't Have Any Other Choice.")
+  (setq dashboard-startup-banner "~/.local/share/rice/pfp-medium-round.png")  ;; use custom image as banner
+  (setq dashboard-center-content nil)
+  (setq dashboard-items '((recents . 5)
+                          (bookmarks . 5)
+                          ))
+  )
 
-  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+(setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 
 (use-package org
   :defer
@@ -319,9 +320,9 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (with-eval-after-load 'lsp-mode
-(defun efs/lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode)))
+  (defun efs/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode)))
 
 (use-package lsp-mode
   :defer
@@ -329,13 +330,13 @@
   :hook (lsp-mode . efs/lsp-mode-setup)
   :config
   (lsp-enable-which-key-integration t))
-  (setq lsp-keymap-prefix "C-c l")
+(setq lsp-keymap-prefix "C-c l")
 
 (use-package lsp-ui
-:after lsp-mode
-    :hook (lsp-mode . lsp-ui-mode)
-    :custom
-    (lsp-ui-doc-position 'bottom))
+  :after lsp-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
 
 (use-package lsp-ivy
   :after lsp-mode)
@@ -343,9 +344,9 @@
 (use-package company
   :defer
   :hook (lsp-mode . company-mode)
-        (prog-mode . global-company-mode)
+  (prog-mode . global-company-mode)
   :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
+              ("<tab>" . company-complete-selection))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))

@@ -1,5 +1,5 @@
-alias ls="exa"
-alias ll="exa -laH --color=auto --group-directories-first"
+alias ll="exa"
+alias ls="exa -laH --color=auto --group-directories-first"
 alias btw="clear;neofetch"
 alias md="mkdir -p"
 alias nb="newsboat"

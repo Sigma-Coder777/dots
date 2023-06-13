@@ -105,9 +105,10 @@ monacle     = renamed [Replace "[M]"]
 floats   = renamed [Replace "><>"]
            $ noBorders
            $ simplestFloat
+
 myLayout = avoidStruts $ mkToggle (NBFULL ?? NOBORDERS ?? EOT) myDefaultLayout
   where
-    myDefaultLayout =  smawithBorder $ withBorder myBorderWidth tall
+    myDefaultLayout = withBorder myBorderWidth tall
                                     ||| noBorders monacle
                                     ||| floats
 
@@ -278,7 +279,7 @@ myConfig = def {
         focusedBorderColor = myFocusedBorderColor,
 
         mouseBindings      = myMouseBindings,
-        layoutHook         = myLayout,
+        layoutHook         = smartBorders myLayout,
         manageHook         = myManageHook,
         handleEventHook    = windowedFullscreenFixEventHook <> swallowEventHook (className =? "Alacritty" <||> className =? "st-256color") (return True),
         startupHook        = myStartupHook
