@@ -194,6 +194,7 @@ myStartupHook = do
   -- For Extra Monitor
   -- spawnOnce "xmobar -x 1 &"
   spawnOnce "lxsession &"
+  spawnOnce "emacs --daemon &"
   spawnOnce "picom --experimental-backends &"
   spawnOnce "$HOME/.local/bin/setbg &"
   spawnOnce "$HOME/.local/bin/tray_items  &"
@@ -211,10 +212,11 @@ myKeys =
     -- launch dmenu
     , ("M-p", spawn "dmenu_run")
     , ("M-b", spawn "librewolf || firefox")
+    , ("M-S-p", spawn "chromium --app=https://www.pw.live/study/batches/lakshya-jee-2024-911516/batch-overview?came_from=my-batches")
     , ("M-S-w", spawn "$HOME/.local/bin/setbg")
     , ("M-<Space>", spawn "emacsclient -ca 'emacs'")
-      -- ScratchPads
 
+      -- ScratchPads
     , ("M-s h", namedScratchpadAction myScratchPads "btop")
     , ("M-s e", namedScratchpadAction myScratchPads "ranger")
     , ("M-s m", namedScratchpadAction myScratchPads "mpd")

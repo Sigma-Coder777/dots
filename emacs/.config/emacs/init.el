@@ -51,6 +51,16 @@
 (setq warning-minimum-level :emergency)
 (server-mode)
 
+;; Save what you enter into minibuffer prompts
+(setq history-length 25)
+(savehist-mode 1)
+;; Remember and restore the last cursor location of opened files
+(save-place-mode 1)
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessage)
+(setq use-dialog-box nil)
+(global-auto-revert-mode 1)
+
 (use-package undo-tree
   :after evil
   :init
@@ -220,33 +230,39 @@
 (sigma/leader-key
   "/"     '(swiper :which-key "Swiper")
   "SPC"   '(counsel-M-x :which-key "M-x")
+
   "b"     '(:ignore t :wk "Buffer")
   "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-  "b B"   '(ibuffer :which-key "iBuffer")
+  "b i"   '(ibuffer :which-key "iBuffer")
   "b b"   '(counsel-ibuffer :which-key "Switch Buffer")
   "b n"   '(next-buffer :which-key "Next Buffer")
   "b p"   '(previous-buffer :which-key "Previous Buffer")
+
   "m"     '(:ignore t :wk "Org")
   "m t"   '(org-shiftright :which-key "Cycle Todo/List-Style")
   "m d"   '(org-timestamp :which-key "Org Timestamp")
   "m o"   '(org-open-at-point :which-key "Org Open")
   "m /"   '(org-sparse-tree :which-key "Query Todos")
+
   "f"     '(:ignore t :wk "Files")
   "f s"   '(save-buffer :which-key "Save Current Buffer")
   "f r"   '(counsel-recentf :which-key "Save Current Buffer")
-  "h"     '(:ignore t :wk "Settings")
+
+  "h"     '(:ignore t :wk "Help")
   "h t"   '(counsel-load-theme :which-key "Change Theme")
   "h r r"     '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+
   "w"     '(:ignore t :wk "Windows")
   "w w"   '(evil-window-next :which-key "Switch to Next window")
   "w q"   '(evil-quit :which-key "Close current window")
-  "w v"       '(evil-window-vsplit :which-key "Vertical split window")
-  "w n"       '(evil-window-new :which-key "New window")
+  "w v"   '(evil-window-vsplit :which-key "Vertical split window")
+  "w n"  '(evil-window-new :which-key "New window")
   "w s"   '(evil-window-split :which-key "Horizontal split window")
-  "w h"        '(evil-window-left :which-key "Window left")
+  "w h"  '(evil-window-left :which-key "Window left")
   "w j"  '(evil-window-down :which-key "Window down")
   "w k"  '(evil-window-up :which-key "Window up")
   "w l"  '(evil-window-right :which-key "Window right")
+
   "."     '(find-file :which-key "Find File"))
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
@@ -327,7 +343,8 @@
 (use-package lsp-mode
   :defer
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . efs/lsp-mode-setup)
+  :hook
+ (lsp-mode . efs/lsp-mode-setup)
   :config
   (lsp-enable-which-key-integration t))
 (setq lsp-keymap-prefix "C-c l")
@@ -356,8 +373,16 @@
   :hook (company-mode . company-box-mode))
 
 (use-package python-mode
-  :after lsp
+  :commands python-mode
   :hook (python-mode . lsp-deferred))
+
+(use-package haskell-mode
+  :commands haskell-mode
+  :hook (haskell-mode . lsp-deferred))
+(use-package lsp-haskell
+ :hook
+  ((haskell-mode . lsp)
+   (haskell-literate-mode . lsp)))
 
 (use-package yasnippet
   :after company
