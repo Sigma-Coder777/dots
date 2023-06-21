@@ -161,8 +161,8 @@ myKeys =
     , ("M-S-c", kill)
 
     -- Adjust Window Size unable to use -= keys :(
-    , ("C-M1-j", decWindowSpacing 4)
-    , ("C-M1-k",  incWindowSpacing 4)
+    , ("M-C-j", decWindowSpacing 4)
+    , ("M-C-k",  incWindowSpacing 4)
 
     -- FullScreen
     , ("M-S-f",sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts)
