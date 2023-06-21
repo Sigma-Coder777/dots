@@ -36,6 +36,7 @@
 - [[#programming][Programming]]
   - [[#magit][Magit]]
   - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#rainbow-mode][Rainbow Mode]]
   - [[#lsp][LSP]]
   - [[#language][Language]]
   - [[#snippets][Snippets]]
@@ -239,7 +240,7 @@ I wanna use that package emacs.
                     :height 90
                     :weight 'medium)
 (set-face-attribute 'variable-pitch nil
-                    :font "Ubuntu Mono Nerd Font"
+                    :font "Ubuntu Nerd Font"
                     :height 100
                     :weight 'medium)
 (set-face-attribute 'fixed-pitch nil
@@ -473,6 +474,11 @@ Fancy Bullets
   :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
+** Rainbow Mode
+#+begin_src emacs-lisp
+(use-package rainbow-mode)
+#+end_src
+
 ** LSP
 *** Lsp Mode
 #+begin_src emacs-lisp
@@ -520,7 +526,6 @@ Fancy Bullets
   :after company
   :hook (company-mode . company-box-mode))
 #+end_src
-
 
 ** Language
 *** Python

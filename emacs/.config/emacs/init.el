@@ -139,7 +139,7 @@
                     :height 90
                     :weight 'medium)
 (set-face-attribute 'variable-pitch nil
-                    :font "Ubuntu Mono Nerd Font"
+                    :font "Ubuntu Nerd Font"
                     :height 100
                     :weight 'medium)
 (set-face-attribute 'fixed-pitch nil
@@ -334,6 +334,8 @@
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package rainbow-mode)
 
 (with-eval-after-load 'lsp-mode
   (defun efs/lsp-mode-setup ()
