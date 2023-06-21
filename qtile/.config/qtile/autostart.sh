@@ -1,2 +1,2 @@
 #!/bin/sh
-~/.config/polybar/launch.sh
+$HOME/.local/bin/setbg &
