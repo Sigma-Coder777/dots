@@ -2,3 +2,4 @@ local/.local/share/
 fish/.config/fish/fish_variables
 emacs/.config/emacs/
 /btop/.config/btop/btop.log
+qtile/.config/qtile/__pycache__

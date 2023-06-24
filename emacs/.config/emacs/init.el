@@ -1,3 +1,4 @@
+(setq inhibit-compacting-font-caches t)
 (setq gc-cons-threshold (* 50 1000 1000))
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
@@ -49,7 +50,7 @@
 (setq create-lockfiles nil)
 (use-package no-littering)
 (setq warning-minimum-level :emergency)
-(server-mode)
+(server-start)
 
 ;; Save what you enter into minibuffer prompts
 (setq history-length 25)
@@ -87,17 +88,29 @@
   :after evil)
 
 (use-package all-the-icons)
+(use-package all-the-icons-dired
+  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+(use-package all-the-icons-ivy-rich
+  :after ivy-rich
+  :init (all-the-icons-ivy-rich-mode 1))
 
-(global-display-line-numbers-mode 1)
+(use-package minimap
+:commands minimap-mode
+:config
+(setq minimap-window-location 'right)
+(custom-set-faces
+ '(minimap-active-region-background ((t (:extend t :background "#11111b")))))
+)
+
+(use-package beacon
+:init (beacon-mode 1))
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'org-mode-hook 'display-line-numbers-mode)
 (setq display-line-numbers-type 'relative)
-(global-visual-line-mode t)
 (delete-selection-mode t)
-;; Disable line numbers for some modes
 
 (electric-pair-mode t)
-(dolist (mode '(  dashboard-mode-hook
-                  term-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (dolist (char/ligature-re
          `((?-  . ,(rx (or (or "-->" "-<<" "->>" "-|" "-~" "-<" "->") (+ "-"))))
@@ -247,10 +260,13 @@
   "f"     '(:ignore t :wk "Files")
   "f s"   '(save-buffer :which-key "Save Current Buffer")
   "f r"   '(counsel-recentf :which-key "Save Current Buffer")
+  "f p" '((lambda () (interactive) (find-file "~/.config/emacs/init.org")) :wk "Open Emacs config")
 
   "h"     '(:ignore t :wk "Help")
   "h t"   '(counsel-load-theme :which-key "Change Theme")
   "h r r"     '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :which-key "Reload emacs config")
+  "h f" '(counsel-describe-function :wk "Describe function")
+  "h v" '(counsel-describe-variable :wk "Describe variable")
 
   "w"     '(:ignore t :wk "Windows")
   "w w"   '(evil-window-next :which-key "Switch to Next window")
@@ -263,7 +279,54 @@
   "w k"  '(evil-window-up :which-key "Window up")
   "w l"  '(evil-window-right :which-key "Window right")
 
+  "e" '(:ignore t :wk "Eshell/Evaluate")    
+  "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+  "e r" '(eval-region :wk "Evaluate elisp in Selection")
+  "e d" '(eval-defun :wk "Evaluate defun containing or after point")
+  "e e" '(eval-expression :wk "Evaluate and elisp expression")
+  "e h" '(counsel-esh-history :which-key "Eshell history")
+  "e l" '(eval-last-sexp :wk "Evaluate elisp expression before point")
+  "e r" '(eval-region :wk "Evaluate elisp in region")
+  "e s" '(eshell :which-key "Eshell")
+
+  "t" '(:ignore t :wk "Toggle")
+  "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+  "t m" '(minimap-mode :wk "Toggle Minimap")
+  "t t" '(visual-line-mode :wk "Toggle truncated lines")
+  "t p" '(treemacs :wk "Toggle Project Drawer")
+  "t r" '(rainbow-mode :wk "Toggle Colors Preview")
+
+  "o" '(:ignore t :wk "Open")
+  "o p" '(treemacs :wk "Toggle Project Drawer")
+  "o t" '(vterm-toggle :wk "Vterm")
+  "o d" '(dired :wk "Dired")
+  "o g" '(magit-status :wk "Magit")
+
   "."     '(find-file :which-key "Find File"))
+
+(use-package vterm
+:config
+(setq shell-file-name "/bin/fish"
+      vterm-max-scrollback 5000))
+
+(use-package vterm-toggle
+  :after vterm
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-scope 'project)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                     (let ((buffer (get-buffer buffer-or-name)))
+                       (with-current-buffer buffer
+                         (or (equal major-mode 'vterm-mode)
+                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                  (display-buffer-reuse-window display-buffer-at-bottom)
+                  ;;(display-buffer-reuse-window display-buffer-in-direction)
+                  ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                  ;;(direction . bottom)
+                  ;;(dedicated . t) ;dedicated is supported in emacs27
+                  (reusable-frames . visible)
+                  (window-height . 0.3))))
 
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (use-package doom-modeline)
@@ -288,11 +351,29 @@
   (setq dashboard-startup-banner "~/.local/share/rice/pfp-medium-round.png")  ;; use custom image as banner
   (setq dashboard-center-content nil)
   (setq dashboard-items '((recents . 5)
-                          (bookmarks . 5)
+                          (projects . 5)
                           ))
   )
 
 (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
+
+(use-package centaur-tabs
+  :config
+  ;; Available are alternate, bar, box, chamfer, rounded, slant, wave, zigzag
+  (setq centaur-tabs-style "wave")
+  (setq centaur-tabs-height 32)
+  (setq centaur-tabs-set-icons t)
+(setq centaur-tabs-set-bar 'left)
+  (setq centaur-tabs-show-new-tab-button t)
+  ;; (setq centaur-tabs-plain-icons t)
+  (centaur-tabs-mode t)
+  :bind
+  (:map evil-normal-state-map
+        ("g t" . centaur-tabs-forward)
+        ("g T" . centaur-tabs-backward))
+  ("C-S-t" . centaur-tabs--create-new-tab)
+  ("C-S-w" . centaur-tabs-do-close)
+  ("C-<next>" . centaur-tabs-forward))
 
 (use-package org
   :defer
@@ -337,19 +418,31 @@
 
 (use-package rainbow-mode)
 
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :config
+  (fset 'projectile-command-map projectile-command-map)
+  (sigma/leader-key
+    "p" '(projectile-command-map :wk "Project")))
+
 (with-eval-after-load 'lsp-mode
   (defun efs/lsp-mode-setup ()
     (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+(setq lsp-keymap-prefix "C-c l") 
     (lsp-headerline-breadcrumb-mode)))
 
 (use-package lsp-mode
   :defer
   :commands (lsp lsp-deferred)
   :hook
- (lsp-mode . efs/lsp-mode-setup)
+  (lsp-mode . efs/lsp-mode-setup)
   :config
-  (lsp-enable-which-key-integration t))
-(setq lsp-keymap-prefix "C-c l")
+  (lsp-enable-which-key-integration t)
+  (fset 'lsp-command-map lsp-command-map)
+  (sigma/leader-key
+    "l" '(lsp-command-map :wk "Lsp"))
+  )
 
 (use-package lsp-ui
   :after lsp-mode
@@ -363,7 +456,7 @@
 (use-package company
   :defer
   :hook (lsp-mode . company-mode)
-  (prog-mode . global-company-mode)
+  (prog-mode . company-mode)
   :bind (:map company-active-map
               ("<tab>" . company-complete-selection))
   :custom
@@ -373,6 +466,115 @@
 (use-package company-box
   :after company
   :hook (company-mode . company-box-mode))
+
+(use-package treemacs
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-find-workspace-method           'find-for-file-or-pick-first
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-project-follow-into-home        nil
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (when treemacs-python-executable
+      (treemacs-git-commit-diff-mode t))
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile))
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once))
+
+(use-package treemacs-magit
+  :after (treemacs magit))
+
+;; (use-package tree-sitter
+;;   :config
+;;   ;; (require 'tree-sitter-langs)
+;;   (global-tree-sitter-mode)
+;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package flycheck
+:hook (prog-mode . global-flycheck-mode))
 
 (use-package python-mode
   :commands python-mode
@@ -384,12 +586,25 @@
 (use-package lsp-haskell
  :hook
   ((haskell-mode . lsp)
-   (haskell-literate-mode . lsp)))
+   (haskell-literate-mode . lsp-deferred)))
+
+(use-package rust-mode
+  :commands rust-mode
+  :config
+  (setq rust-format-on-save t)
+  :hook (rust-mode . lsp-deferred))
+(use-package cargo-mode
+:defer 
+  :config
+  (setq compilation-scroll-output t)
+  (add-hook 'rust-mode-hook 'cargo-minor-mode))
 
 (use-package yasnippet
   :after company
   :init
   (yas-global-mode))
+
+(use-package yasnippet-snippets)
 
 (use-package doom-snippets
   :after yasnippet

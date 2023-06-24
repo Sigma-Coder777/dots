@@ -5,6 +5,7 @@
 - [[#screenshots][Screenshots]]
   - [[#xmonad][XMonad]]
   - [[#qtile][QTile]]
+  - [[#emacs][Emacs]]
 - [[#dependencies--bloat][Dependencies / Bloat]]
 - [[#color-schemes][Color Schemes]]
 - [[#installation][Installation]]
@@ -19,6 +20,10 @@ Go to [[file:xmonad/.config/xmonad/xmonad.org][Config]]
 ** QTile
 Go to [[file:qtile/.config/qtile/qtile.org][Config]]
 [[file:qtile.png]]
+** Emacs
+Go to [[file:emacs/.config/emacs/init.org][Config]]
+[[file:emacs.png]]
+
 * Dependencies / Bloat
 + Windows Manager & Related Stuff
   + XMonad
